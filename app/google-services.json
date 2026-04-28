@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "620179741170",
+    "project_id": "regl-takip-fba63",
+    "storage_bucket": "regl-takip-fba63.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:620179741170:android:65080b8523e668a44c336b",
+        "android_client_info": {
+          "package_name": "com.yakuphanuslu.regltakip"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_nXE-Cyvxx-qPyTNuJaB3JN9VS9YVO4o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

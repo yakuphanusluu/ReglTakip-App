@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF5F8">
+
+    <RelativeLayout
+        android:id="@+id/rlTopBar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#D81B60"
+        app:layout_constraintTop_toTopOf="parent">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Regl Takip 🌸"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"/>
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@+id/rlTopBar"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tvPrediction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textColor="#D81B60"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                android:layout_marginBottom="16dp">
+                <LinearLayout
+                    android:id="@+id/llPhaseBg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:background="#9E9E9E">
+                    <TextView
+                        android:id="@+id/tvPhaseTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:textColor="#FFFFFF"/>
+                    <TextView
+                        android:id="@+id/tvPhaseDesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                android:layout_marginBottom="16dp">
+                <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+                    android:id="@+id/calendarView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    app:mcv_tileSize="54dp"
+                    app:mcv_selectionColor="#FCE4EC"
+                    android:padding="8dp"/>
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+                <CheckBox
+                    android:id="@+id/cbPeriodStart"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Başladı 🩸"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#E91E63"
+                    android:buttonTint="#E91E63"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEndPeriod"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="REGL BİTTİ ✨"
+                    app:cornerRadius="12dp"
+                    android:backgroundTint="#9C27B0"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hissedilen Duygular"
+                android:textStyle="bold"
+                android:textColor="#212121"/>
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupEmotions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp">
+                <com.google.android.material.chip.Chip style="@style/Widget.MaterialComponents.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mutlu 🥰"/>
+                <com.google.android.material.chip.Chip style="@style/Widget.MaterialComponents.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hassas 🥺"/>
+                <com.google.android.material.chip.Chip style="@style/Widget.MaterialComponents.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sinirli 😠"/>
+            </com.google.android.material.chip.ChipGroup>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ağrı Seviyesi"
+                android:textStyle="bold"
+                android:textColor="#212121"/>
+            <RadioGroup android:id="@+id/rgPain" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="8dp">
+                <RadioButton android:id="@+id/pain1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Şiddetli 😫"/>
+                <RadioButton android:id="@+id/pain2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hafif 🤕"/>
+                <RadioButton android:id="@+id/pain3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Yok 🌸"/>
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enerji Seviyesi"
+                android:textStyle="bold"
+                android:textColor="#212121"/>
+            <RadioGroup android:id="@+id/rgEnergy" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
+                <RadioButton android:id="@+id/energy1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bitkin 😴"/>
+                <RadioButton android:id="@+id/energy2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Normal 🔋"/>
+                <RadioButton android:id="@+id/energy3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Enerjik ⚡"/>
+            </RadioGroup>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxStrokeColor="#E91E63"
+                android:hint="Günün nasıl geçti?..">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNotes"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:gravity="top"
+                    android:inputType="textMultiLine"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveAll"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="GÜNÜ KAYDET ✨"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                app:cornerRadius="16dp"
+                app:backgroundTint="#E91E63"
+                android:textStyle="bold"/>
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemTextColor="#D81B60"
+        app:itemIconTint="#D81B60"
+        android:background="#FFFFFF"
+        app:elevation="8dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

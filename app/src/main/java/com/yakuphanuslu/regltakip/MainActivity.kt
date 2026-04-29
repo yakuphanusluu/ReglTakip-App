@@ -218,7 +218,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         // 2. Gün İsimleri (Pzt, Sal / Mon, Tue)
-        // TYPE MISMATCH ÇÖZÜMÜ: .value kullanımı
         calendarView.setWeekDayFormatter { dayOfWeek ->
             val calendar = Calendar.getInstance()
             val dayInt = (dayOfWeek.value % 7) + 1
@@ -289,7 +288,7 @@ class MainActivity : AppCompatActivity() {
                 val phase = CycleManager.getPhaseForDate(selectedDate, all)
                 val phaseName = phase.name ?: ""
 
-                // Faz İsimleri Çevirisi
+                // --- 1. DÜZELTME: FAZ İSİMLERİ, BOŞ DURUM VE DÖNGÜ TAMAMLANDI KONTROLÜ ---
                 when {
                     phaseName.contains("Regl", ignoreCase = true) -> {
                         tvPhaseTitle.text = getString(R.string.period_phase)
@@ -297,7 +296,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     phaseName.contains("Folik", ignoreCase = true) -> {
                         tvPhaseTitle.text = getString(R.string.follicular_phase)
-                        tvPhaseDesc.text = getString(R.string.phase_desc)
+                        tvPhaseDesc.text = getString(R.string.follicular_desc)
                     }
                     phaseName.contains("Yumurt", ignoreCase = true) -> {
                         tvPhaseTitle.text = getString(R.string.ovulation_phase)
@@ -306,6 +305,15 @@ class MainActivity : AppCompatActivity() {
                     phaseName.contains("Luteal", ignoreCase = true) -> {
                         tvPhaseTitle.text = getString(R.string.luteal_phase)
                         tvPhaseDesc.text = getString(R.string.luteal_desc)
+                    }
+                    phaseName.contains("Hoş Geldin", ignoreCase = true) || phaseName.isEmpty() -> {
+                        tvPhaseTitle.text = getString(R.string.welcome_title)
+                        tvPhaseDesc.text = getString(R.string.welcome_desc)
+                    }
+                    // YENİ: DÖNGÜ TAMAMLANDI YAKALAYICISI
+                    phaseName.contains("Tamamlandı", ignoreCase = true) -> {
+                        tvPhaseTitle.text = getString(R.string.cycle_completed_title)
+                        tvPhaseDesc.text = getString(R.string.cycle_completed_desc)
                     }
                     else -> {
                         tvPhaseTitle.text = phaseName
@@ -319,7 +327,7 @@ class MainActivity : AppCompatActivity() {
                     llPhaseBg.setBackgroundColor(Color.GRAY)
                 }
 
-                // Tahmin Tarihi Yerelleştirme
+                // --- 2. DÜZELTME: TAHMİN BÖLÜMÜ (VERİ BEKLENİYOR) ÇEVİRİSİ ---
                 val rawPrediction = CycleManager.calculateNextPeriod(all)
                 val dateRegex = """(\d{2}/\d{2}/\d{4})""".toRegex()
                 val match = dateRegex.find(rawPrediction)
@@ -331,7 +339,11 @@ class MainActivity : AppCompatActivity() {
                         displayFormat.format(dateObj!!)
                     } catch (e: Exception) { match.value }
                 } else {
-                    rawPrediction.replace("Tahmini Gelecek Regl: ", "").replace("🌸", "").trim()
+                    if (rawPrediction.contains("Veri", ignoreCase = true)) {
+                        getString(R.string.waiting_data)
+                    } else {
+                        rawPrediction.replace("Tahmini Gelecek Regl: ", "").replace("🌸", "").trim()
+                    }
                 }
 
                 tvPrediction.text = getString(R.string.prediction_text, localizedDate)

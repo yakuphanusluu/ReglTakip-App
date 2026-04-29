@@ -91,4 +91,11 @@
 
     <string name="forgot_password_title">Şifremi Unuttum 🔑</string>
     <string name="forgot_password_desc">Kayıtlı e-posta adresini gir. Sana şifreni güvenle sıfırlaman için bir bağlantı göndereceğiz.</string>
+
+    <string name="waiting_data">Veri bekleniyor...</string>
+    <string name="welcome_title">Hoş Geldin!</string>
+    <string name="welcome_desc">Bir başlangıç günü seç kanka.</string>
+
+    <string name="cycle_completed_title">Döngü Tamamlandı</string>
+    <string name="cycle_completed_desc">Bir sonraki kaydı bekle.</string>
 </resources>

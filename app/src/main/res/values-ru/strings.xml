@@ -91,4 +91,11 @@
 
     <string name="forgot_password_title">Забыли пароль 🔑</string>
     <string name="forgot_password_desc">Введите зарегистрированный e-mail. Мы отправим вам безопасную ссылку для сброса пароля.</string>
+
+    <string name="waiting_data">Ожидание данных...</string>
+    <string name="welcome_title">Добро пожаловать!</string>
+    <string name="welcome_desc">Выбери дату начала.</string>
+
+    <string name="cycle_completed_title">Цикл завершен</string>
+    <string name="cycle_completed_desc">Ожидайте следующей записи.</string>
 </resources>

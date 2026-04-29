@@ -91,4 +91,11 @@
 
     <string name="forgot_password_title">Passwort vergessen 🔑</string>
     <string name="forgot_password_desc">Gib deine registrierte E-Mail-Adresse ein. Wir senden dir einen sicheren Link zum Zurücksetzen deines Passworts.</string>
+
+    <string name="waiting_data">Warten auf Daten...</string>
+    <string name="welcome_title">Willkommen!</string>
+    <string name="welcome_desc">Wähle ein Startdatum.</string>
+
+    <string name="cycle_completed_title">Zyklus abgeschlossen</string>
+    <string name="cycle_completed_desc">Warte auf den nächsten Eintrag.</string>
 </resources>

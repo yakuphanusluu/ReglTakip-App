@@ -91,4 +91,11 @@
 
     <string name="forgot_password_title">Forgot Password 🔑</string>
     <string name="forgot_password_desc">Enter your registered email address. We will send you a secure link to reset your password.</string>
+
+    <string name="waiting_data">Waiting for data...</string>
+    <string name="welcome_title">Welcome!</string>
+    <string name="welcome_desc">Pick a start date to begin.</string>
+
+    <string name="cycle_completed_title">Cycle Completed</string>
+    <string name="cycle_completed_desc">Wait for the next entry.</string>
 </resources>

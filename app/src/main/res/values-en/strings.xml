@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Period Tracker</string>
+    <string name="app_name_with_emoji">Period Tracker 🌸</string>
+    <string name="settings">Settings</string>
+    <string name="account">Account ⚙️</string>
+    <string name="back">← Back</string>
+    <string name="email_loading">Loading email...</string>
+
+    <string name="prediction_text">Next Predicted Period: %s 🌸</string>
+    <string name="started">Started 🩸</string>
+    <string name="period_ended">PERIOD ENDED ✨</string>
+    <string name="save_day">SAVE DAY ✨</string>
+    <string name="notes_hint">How was your day?..</string>
+
+    <string name="period_phase">Menstrual Phase 🔥</string>
+    <string name="phase_desc">Your body is renewing itself.</string>
+    <string name="follicular_phase">Follicular Phase 🌱</string>
+    <string name="follicular_desc">Your energy levels are rising.</string>
+    <string name="ovulation_phase">Ovulation Phase ✨</string>
+    <string name="ovulation_desc">Fertility is at its peak.</string>
+    <string name="luteal_phase">Luteal Phase 🌙</string>
+    <string name="luteal_desc">Time for rest and self-care.</string>
+
+    <string name="login_welcome">Welcome 🌸</string>
+    <string name="email_hint">Email Address</string>
+    <string name="password_hint">Password</string>
+    <string name="login_forgot_password">Forgot Password?</string>
+    <string name="login_btn">LOGIN</string>
+    <string name="login_footer">Don\'t have an account? Register ✨</string>
+
+    <string name="register_title">Create New Account ✨</string>
+    <string name="register_password_hint">Set Password</string>
+    <string name="register_btn">REGISTER AND START</string>
+    <string name="register_footer">Already have an account? Login</string>
+
+    <string name="verification_notice_format">✉️ A confirmation link has been sent to %s. Please check your inbox (including spam) and verify your account.</string>
+    <string name="error_empty_fields">Please fill in all fields! ⚠️</string>
+    <string name="error_auth_failed">Invalid email or password! ❌</string>
+
+    <string name="title_feelings">Feelings</string>
+    <string name="happy">Happy 🥰</string>
+    <string name="sensitive">Sensitive 🥺</string>
+    <string name="angry">Angry 😠</string>
+
+    <string name="title_pain">Pain Level</string>
+    <string name="severe">Severe 😫</string>
+    <string name="light_pain">Light 🤕</string>
+    <string name="none">None 🌸</string>
+
+    <string name="title_energy">Energy Level</string>
+    <string name="exhausted">Exhausted 😴</string>
+    <string name="normal">Normal 🔋</string>
+    <string name="energetic">Energetic ⚡</string>
+
+    <string name="update_info">UPDATE INFO ✏️</string>
+    <string name="logout">LOGOUT 🚪</string>
+    <string name="app_language">App Language 🌍</string>
+    <string name="update_info_title">Update Information ✏️</string>
+    <string name="change_email_header">Change Email Address</string>
+    <string name="new_email_hint">New Email Address</string>
+    <string name="btn_send_code">SEND CODE TO OLD EMAIL</string>
+    <string name="security_code_hint">6-Digit Security Code</string>
+    <string name="btn_verify_update">UPDATE EMAIL AND LOGOUT</string>
+    <string name="change_password_header">Change Password</string>
+    <string name="password_reset_desc">For your security, we will send the password reset link directly to your current email address.</string>
+    <string name="btn_send_reset">SEND PASSWORD RESET LINK</string>
+
+    <string name="history_title">My History</string>
+    <string name="period_start_badge">Period Start 🩸</string>
+    <string name="delete">DELETE 🗑️</string>
+    <string name="not_specified">Not specified</string>
+    <string name="no_notes">No notes added</string>
+
+    <string name="summary_title">Cycle Summaries</string>
+    <string name="summary_duration_format">Lasted %d Days ✨</string>
+    <string name="completed_cycle_summary">Completed Cycle Summary</string>
+    <string name="avg_pain_format">Average Pain: %s</string>
+    <string name="avg_energy_format">Average Energy: %s</string>
+
+    <string name="nav_summary">Summary</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_history">History</string>
+    <string name="summary_created">Cycle Summary Generated ✨</string>
+    <string name="day_saved">Day Saved! 🩸</string>
+    <string name="error_invalid_email">Please enter a valid email address! 📧</string>
+    <string name="error_invalid_code">Please enter the 6-digit code correctly! 🔐</string>
+    <string name="connection_error">Connection error</string>
+    <string name="wrong_code">Invalid Code!</string>
+    <string name="process_completed">Process completed</string>
+
+    <string name="forgot_password_title">Forgot Password 🔑</string>
+    <string name="forgot_password_desc">Enter your registered email address. We will send you a secure link to reset your password.</string>
+</resources>

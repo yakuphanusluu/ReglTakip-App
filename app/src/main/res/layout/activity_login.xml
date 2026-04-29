@@ -9,9 +9,21 @@
     android:padding="32dp">
 
     <TextView
+        android:id="@+id/btnLanguageLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hoş Geldin 🌸"
+        android:text="🌍 TR"
+        android:textColor="#D81B60"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_gravity="end"
+        android:padding="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/login_welcome"
         android:textColor="#D81B60"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -34,7 +46,7 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="E-posta Adresi"
+        android:hint="@string/email_hint"
         app:boxStrokeColor="#D81B60"
         android:layout_marginBottom="16dp">
         <com.google.android.material.textfield.TextInputEditText
@@ -48,7 +60,7 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Şifre"
+        android:hint="@string/password_hint"
         app:boxStrokeColor="#D81B60"
         app:passwordToggleEnabled="true"
         android:layout_marginBottom="8dp">
@@ -63,7 +75,7 @@
         android:id="@+id/btnForgotPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Şifremi Unuttum?"
+        android:text="@string/login_forgot_password"
         android:textColor="#D81B60"
         android:textStyle="bold"
         android:textSize="14sp"
@@ -74,7 +86,7 @@
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="GİRİŞ YAP"
+        android:text="@string/login_btn"
         app:cornerRadius="12dp"
         android:backgroundTint="#D81B60"
         android:layout_marginBottom="12dp"/>
@@ -83,7 +95,7 @@
         android:id="@+id/btnRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hesabın yok mu? Kayıt Ol ✨"
+        android:text="@string/login_footer"
         android:textColor="#9E9E9E"
         android:padding="8dp"/>
 </LinearLayout>

@@ -32,6 +32,7 @@
         <activity android:name=".SummaryActivity" android:exported="false" />
         <activity android:name=".SettingsActivity" android:exported="false" />
         <activity android:name=".UpdateInfoActivity" android:exported="false" />
+        <activity android:name=".ForgotPasswordActivity" android:exported="false" />
 
     </application>
 </manifest>

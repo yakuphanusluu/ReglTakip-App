@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF5F8"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="32dp">
+        <TextView
+            android:id="@+id/btnBackUpdate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/back"
+            android:textColor="#D81B60"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:padding="8dp"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/update_info_title"
+            android:textAlignment="center"
+            android:textColor="#D81B60"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="40dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/change_email_header"
+        android:textColor="#333333"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/new_email_hint"
+        app:boxStrokeColor="#D81B60"
+        android:layout_marginBottom="12dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etNewEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRequestCode"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="@string/btn_send_code"
+        app:cornerRadius="8dp"
+        android:backgroundTint="#D81B60"
+        android:layout_marginBottom="12dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilSecurityCode"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/security_code_hint"
+        app:boxStrokeColor="#D81B60"
+        android:visibility="gone"
+        android:layout_marginBottom="12dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSecurityCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="6"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnVerifyAndUpdate"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="@string/btn_verify_update"
+        app:cornerRadius="8dp"
+        android:backgroundTint="#D81B60"
+        android:visibility="gone"
+        android:layout_marginBottom="32dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E0E0E0"
+        android:layout_marginBottom="32dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/change_password_header"
+        android:textColor="#333333"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/password_reset_desc"
+        android:textColor="#666666"
+        android:textSize="13sp"
+        android:layout_marginBottom="16dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSendPasswordReset"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="@string/btn_send_reset"
+        app:cornerRadius="8dp"
+        android:backgroundTint="#9E9E9E"/>
+
+</LinearLayout>

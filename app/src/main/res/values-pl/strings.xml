@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kalendarzyk Okresu</string>
+    <string name="app_name_with_emoji">Kalendarzyk Okresu 🌸</string>
+    <string name="settings">Ustawienia</string>
+    <string name="account">Moje konto ⚙️</string>
+    <string name="back">← Wróć</string>
+    <string name="email_loading">Ładowanie e-mail...</string>
+
+    <string name="prediction_text">Następny przewidywany okres: %s 🌸</string>
+    <string name="started">Zaczęło się 🩸</string>
+    <string name="period_ended">KONIEC OKRESU ✨</string>
+    <string name="save_day">ZAPISZ DZIEŃ ✨</string>
+    <string name="notes_hint">Jak minął Twój dzień?..</string>
+
+    <string name="period_phase">Faza menstruacyjna 🔥</string>
+    <string name="phase_desc">Twój organizm się regeneruje.</string>
+    <string name="follicular_phase">Faza folikularna 🌱</string>
+    <string name="follicular_desc">Twój poziom energii rośnie.</string>
+    <string name="ovulation_phase">Owulacja ✨</string>
+    <string name="ovulation_desc">Dni płodne są na szczycie.</string>
+    <string name="luteal_phase">Faza lutealna 🌙</string>
+    <string name="luteal_desc">Czas na odpoczynek i relaks.</string>
+
+    <string name="login_welcome">Witaj 🌸</string>
+    <string name="email_hint">Adres e-mail</string>
+    <string name="password_hint">Hasło</string>
+    <string name="login_forgot_password">Zapomniałeś hasła?</string>
+    <string name="login_btn">ZALOGUJ SIĘ</string>
+    <string name="login_footer">Nie masz konta? Zarejestruj się ✨</string>
+
+    <string name="register_title">Utwórz nowe konto ✨</string>
+    <string name="register_password_hint">Ustaw hasło</string>
+    <string name="register_btn">ZAREJESTRUJ SIĘ I ZACZNIJ</string>
+    <string name="register_footer">Masz już konto? Zaloguj się</string>
+
+    <string name="verification_notice_format">✉️ Link potwierdzający został wysłany na adres %s. Sprawdź swoją skrzynkę (również spam) i potwierdź konto.</string>
+    <string name="error_empty_fields">Proszę wypełnić wszystkie pola! ⚠️</string>
+    <string name="error_auth_failed">Błędny e-mail lub hasło! ❌</string>
+
+    <string name="title_feelings">Uczucia</string>
+    <string name="happy">Szczęśliwa 🥰</string>
+    <string name="sensitive">Wrażliwa 🥺</string>
+    <string name="angry">Zła 😠</string>
+
+    <string name="title_pain">Poziom bólu</string>
+    <string name="severe">Silny 😫</string>
+    <string name="light_pain">Lekki 🤕</string>
+    <string name="none">Brak 🌸</string>
+
+    <string name="title_energy">Poziom energii</string>
+    <string name="exhausted">Wyczerpana 😴</string>
+    <string name="normal">Normalny 🔋</string>
+    <string name="energetic">Energetyczna ⚡</string>
+
+    <string name="update_info">AKTUALIZUJ DANE ✏️</string>
+    <string name="logout">WYLOGUJ SIĘ 🚪</string>
+    <string name="app_language">Język aplikacji 🌍</string>
+    <string name="update_info_title">Aktualizuj informacje ✏️</string>
+    <string name="change_email_header">Zmień adres e-mail</string>
+    <string name="new_email_hint">Nowy adres e-mail</string>
+    <string name="btn_send_code">WYŚLIJ KOD NA STARY E-MAIL</string>
+    <string name="security_code_hint">6-cyfrowy kod bezpieczeństwa</string>
+    <string name="btn_verify_update">AKTUALIZUJ I WYLOGUJ</string>
+    <string name="change_password_header">Zmień hasło</string>
+    <string name="password_reset_desc">Dla Twojego bezpieczeństwa link do resetowania hasła wyślemy bezpośrednio na Twój obecny adres e-mail.</string>
+    <string name="btn_send_reset">WYŚLIJ LINK DO RESETOWANIA</string>
+
+    <string name="history_title">Moja historia</string>
+    <string name="period_start_badge">Początek okresu 🩸</string>
+    <string name="delete">USUŃ 🗑️</string>
+    <string name="not_specified">Nie podano</string>
+    <string name="no_notes">Brak notatek</string>
+
+    <string name="summary_title">Podsumowanie cyklu</string>
+    <string name="summary_duration_format">Trwał %d dni ✨</string>
+    <string name="completed_cycle_summary">Podsumowanie zakończonego cyklu</string>
+    <string name="avg_pain_format">Średni ból: %s</string>
+    <string name="avg_energy_format">Średnia energia: %s</string>
+
+    <string name="nav_summary">Podsumowanie</string>
+    <string name="nav_home">Start</string>
+    <string name="nav_history">Historia</string>
+    <string name="summary_created">Podsumowanie wygenerowane ✨</string>
+    <string name="day_saved">Dzień zapisany! 🩸</string>
+    <string name="error_invalid_email">Podaj poprawny e-mail! 📧</string>
+    <string name="error_invalid_code">Podaj pełny 6-cyfrowy kod! 🔐</string>
+    <string name="connection_error">Błąd połączenia</string>
+    <string name="wrong_code">Błędny kod!</string>
+    <string name="process_completed">Zakończono</string>
+
+    <string name="forgot_password_title">Zapomniałem hasła 🔑</string>
+    <string name="forgot_password_desc">Wprowadź zarejestrowany adres e-mail. Wyślemy Ci bezpieczny link do zresetowania hasła.</string>
+</resources>

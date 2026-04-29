@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Трекер периодов</string>
+    <string name="app_name_with_emoji">Трекер периодов 🌸</string>
+    <string name="settings">Настройки</string>
+    <string name="account">Мой аккаунт ⚙️</string>
+    <string name="back">← Назад</string>
+    <string name="email_loading">Загрузка почты...</string>
+
+    <string name="prediction_text">Следующий прогноз: %s 🌸</string>
+    <string name="started">Началось 🩸</string>
+    <string name="period_ended">ПЕРИОД ЗАКОНЧЕН ✨</string>
+    <string name="save_day">СОХРАНИТЬ ДЕНЬ ✨</string>
+    <string name="notes_hint">Как прошел твой день?..</string>
+
+    <string name="period_phase">Менструальная фаза 🔥</string>
+    <string name="phase_desc">Твой организм восстанавливается.</string>
+    <string name="follicular_phase">Фолликулярная фаза 🌱</string>
+    <string name="follicular_desc">Твоя энергия растет.</string>
+    <string name="ovulation_phase">Овуляция ✨</string>
+    <string name="ovulation_desc">Фертильность на пике.</string>
+    <string name="luteal_phase">Лютеиновая фаза 🌙</string>
+    <string name="luteal_desc">Время для отдыха и заботы о себе.</string>
+
+    <string name="login_welcome">Добро пожаловать 🌸</string>
+    <string name="email_hint">E-mail адрес</string>
+    <string name="password_hint">Пароль</string>
+    <string name="login_forgot_password">Забыли пароль?</string>
+    <string name="login_btn">ВОЙТИ</string>
+    <string name="login_footer">Нет аккаунта? Регистрация ✨</string>
+
+    <string name="register_title">Создать аккаунт ✨</string>
+    <string name="register_password_hint">Придумайте пароль</string>
+    <string name="register_btn">ЗАРЕГИСТРИРОВАТЬСЯ</string>
+    <string name="register_footer">Уже есть аккаунт? Войти</string>
+
+    <string name="verification_notice_format">✉️ Ссылка для подтверждения отправлена на %s. Пожалуйста, проверьте почту (включая спам) и подтвердите аккаунт.</string>
+    <string name="error_empty_fields">Заполните все поля! ⚠️</string>
+    <string name="error_auth_failed">Неверный e-mail или пароль! ❌</string>
+
+    <string name="title_feelings">Эмоции</string>
+    <string name="happy">Счастье 🥰</string>
+    <string name="sensitive">Чувствительность 🥺</string>
+    <string name="angry">Злость 😠</string>
+
+    <string name="title_pain">Уровень боли</string>
+    <string name="severe">Сильная 😫</string>
+    <string name="light_pain">Легкая 🤕</string>
+    <string name="none">Нет 🌸</string>
+
+    <string name="title_energy">Уровень энергии</string>
+    <string name="exhausted">Усталость 😴</string>
+    <string name="normal">Обычный 🔋</string>
+    <string name="energetic">Энергичность ⚡</string>
+
+    <string name="update_info">ОБНОВИТЬ ДАННЫЕ ✏️</string>
+    <string name="logout">ВЫЙТИ 🚪</string>
+    <string name="app_language">Язык приложения 🌍</string>
+    <string name="update_info_title">Обновить информацию ✏️</string>
+    <string name="change_email_header">Изменить E-mail</string>
+    <string name="new_email_hint">Новый E-mail адрес</string>
+    <string name="btn_send_code">ОТПРАВИТЬ КОД НА СТАРУЮ ПОЧТУ</string>
+    <string name="security_code_hint">6-значный защитный код</string>
+    <string name="btn_verify_update">ОБНОВИТЬ И ВЫЙТИ</string>
+    <string name="change_password_header">Изменить пароль</string>
+    <string name="password_reset_desc">Для безопасности ссылка для сброса пароля будет отправлена на текущий e-mail.</string>
+    <string name="btn_send_reset">ОТПРАВИТЬ ССЫЛКУ ДЛЯ СБРОСА</string>
+
+    <string name="history_title">Моя история</string>
+    <string name="period_start_badge">Начало периода 🩸</string>
+    <string name="delete">УДАЛИТЬ 🗑️</string>
+    <string name="not_specified">Не указано</string>
+    <string name="no_notes">Нет заметок</string>
+
+    <string name="summary_title">Итоги цикла</string>
+    <string name="summary_duration_format">Длился %d дн. ✨</string>
+    <string name="completed_cycle_summary">Итог завершенного цикла</string>
+    <string name="avg_pain_format">Средняя боль: %s</string>
+    <string name="avg_energy_format">Средняя энергия: %s</string>
+
+    <string name="nav_summary">Итоги</string>
+    <string name="nav_home">Главная</string>
+    <string name="nav_history">История</string>
+    <string name="summary_created">Отчет создан ✨</string>
+    <string name="day_saved">День сохранен! 🩸</string>
+    <string name="error_invalid_email">Введите корректный e-mail! 📧</string>
+    <string name="error_invalid_code">Введите полный 6-значный код! 🔐</string>
+    <string name="connection_error">Ошибка соединения</string>
+    <string name="wrong_code">Неверный код!</string>
+    <string name="process_completed">Готово</string>
+
+    <string name="forgot_password_title">Забыли пароль 🔑</string>
+    <string name="forgot_password_desc">Введите зарегистрированный e-mail. Мы отправим вам безопасную ссылку для сброса пароля.</string>
+</resources>

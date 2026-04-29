@@ -1,4 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Regl Takip</string>
-    <string name="welcome">Hoş Geldin 🌸</string>
+    <string name="app_name_with_emoji">Regl Takip 🌸</string>
+    <string name="settings">Ayarlar</string>
+    <string name="account">Hesabım ⚙️</string>
+    <string name="back">← Geri</string>
+    <string name="email_loading">E-posta yükleniyor...</string>
+
+    <string name="prediction_text">Tahmini Gelecek Regl: %s 🌸</string>
+    <string name="started">Başladı 🩸</string>
+    <string name="period_ended">REGL BİTTİ ✨</string>
+    <string name="save_day">GÜNÜ KAYDET ✨</string>
+    <string name="notes_hint">Günün nasıl geçti?..</string>
+
+    <string name="period_phase">Regl Dönemi 🔥</string>
+    <string name="phase_desc">Vücudun yenileniyor kanka.</string>
+    <string name="follicular_phase">Foliküler Evre 🌱</string>
+    <string name="follicular_desc">Enerjin artmaya başlıyor.</string>
+    <string name="ovulation_phase">Yumurtlama Dönemi ✨</string>
+    <string name="ovulation_desc">Doğurganlığın en yüksek seviyede.</string>
+    <string name="luteal_phase">Luteal Evre 🌙</string>
+    <string name="luteal_desc">Dinlenme ve özbakım zamanı.</string>
+
+    <string name="login_welcome">Hoş Geldin 🌸</string>
+    <string name="email_hint">E-posta Adresi</string>
+    <string name="password_hint">Şifre</string>
+    <string name="login_forgot_password">Şifremi Unuttum?</string>
+    <string name="login_btn">GİRİŞ YAP</string>
+    <string name="login_footer">Hesabın yok mu? Kayıt Ol ✨</string>
+
+    <string name="register_title">Yeni Hesap Oluştur ✨</string>
+    <string name="register_password_hint">Şifre Belirle</string>
+    <string name="register_btn">KAYIT OL VE BAŞLA</string>
+    <string name="register_footer">Zaten hesabım var, Giriş Yap</string>
+
+    <string name="verification_notice_format">✉️ %s adresine onay linki gönderildi. Lütfen (Spam dahil) kontrol et ve hesabını onayla.</string>
+    <string name="error_empty_fields">Alanları boş bırakma kanka! ⚠️</string>
+    <string name="error_auth_failed">E-posta veya şifre hatalı! ❌</string>
+
+    <string name="title_feelings">Hissedilen Duygular</string>
+    <string name="happy">Mutlu 🥰</string>
+    <string name="sensitive">Hassas 🥺</string>
+    <string name="angry">Sinirli 😠</string>
+
+    <string name="title_pain">Ağrı Seviyesi</string>
+    <string name="severe">Şiddetli 😫</string>
+    <string name="light_pain">Hafif 🤕</string>
+    <string name="none">Yok 🌸</string>
+
+    <string name="title_energy">Enerji Seviyesi</string>
+    <string name="exhausted">Bitkin 😴</string>
+    <string name="normal">Normal 🔋</string>
+    <string name="energetic">Enerjik ⚡</string>
+
+    <string name="update_info">BİLGİLERİ GÜNCELLE ✏️</string>
+    <string name="logout">ÇIKIŞ YAP 🚪</string>
+    <string name="app_language">Uygulama Dili 🌍</string>
+    <string name="update_info_title">Bilgileri Güncelle ✏️</string>
+    <string name="change_email_header">E-Posta Adresini Değiştir</string>
+    <string name="new_email_hint">Yeni E-posta Adresi</string>
+    <string name="btn_send_code">ESKİ MAİLE KOD GÖNDER</string>
+    <string name="security_code_hint">6 Haneli Güvenlik Kodu</string>
+    <string name="btn_verify_update">MAİLE GÜNCELLE VE ÇIKIŞ YAP</string>
+    <string name="change_password_header">Şifreni Değiştir</string>
+    <string name="password_reset_desc">Güvenliğin için şifre değiştirme bağlantısını doğrudan mevcut e-posta adresine göndereceğiz.</string>
+    <string name="btn_send_reset">ŞİFRE SIFIRLAMA LİNKİ GÖNDER</string>
+
+    <string name="history_title">Geçmiş Kayıtlarım</string>
+    <string name="period_start_badge">Regl Başlangıcı 🩸</string>
+    <string name="delete">SİL 🗑️</string>
+    <string name="not_specified">Belirtilmedi</string>
+    <string name="no_notes">Not eklenmemiş</string>
+
+    <string name="summary_title">Döngü Özetleri</string>
+    <string name="summary_duration_format">%d Gün Sürdü ✨</string>
+    <string name="completed_cycle_summary">Tamamlanan Döngü Özeti</string>
+    <string name="avg_pain_format">Genel Ağrı: %s</string>
+    <string name="avg_energy_format">Genel Enerji: %s</string>
+
+    <string name="nav_summary">Özet</string>
+    <string name="nav_home">Ana Ekran</string>
+    <string name="nav_history">Geçmiş</string>
+    <string name="summary_created">Döngü Özeti Çıkarıldı ✨</string>
+    <string name="day_saved">Gün Kaydedildi! 🩸</string>
+    <string name="error_invalid_email">Geçerli bir e-posta adresi gir kanka! 📧</string>
+    <string name="error_invalid_code">Lütfen 6 haneli kodu eksiksiz gir kanka! 🔐</string>
+    <string name="connection_error">Bağlantı hatası</string>
+    <string name="wrong_code">Hatalı Kod!</string>
+    <string name="process_completed">İşlem tamam</string>
+
+    <string name="forgot_password_title">Şifremi Unuttum 🔑</string>
+    <string name="forgot_password_desc">Kayıtlı e-posta adresini gir. Sana şifreni güvenle sıfırlaman için bir bağlantı göndereceğiz.</string>
 </resources>

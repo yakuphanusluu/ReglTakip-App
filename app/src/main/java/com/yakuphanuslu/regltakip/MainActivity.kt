@@ -1,11 +1,13 @@
 package com.yakuphanuslu.regltakip
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -33,7 +35,9 @@ import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     private lateinit var db: AppDatabase
-    private val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+    // Teknik işlemler (DB/API) için format standart kalmalı
+    private val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.US)
     private var selectedDate = sdf.format(Date())
 
     private lateinit var calendarView: MaterialCalendarView
@@ -49,6 +53,18 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var api: ApiService
 
+    // --- GÜNCEL: Uygulamanın o anki aktif dilini bulan fonksiyon ---
+    private fun getAppLocale(): Locale {
+        val currentLocales = AppCompatDelegate.getApplicationLocales()
+        return if (!currentLocales.isEmpty) {
+            currentLocales.get(0) ?: Locale("tr")
+        } else {
+            val prefs = getSharedPreferences("regl_prefs", MODE_PRIVATE)
+            val langCode = prefs.getString("app_lang", "tr") ?: "tr"
+            Locale(langCode)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
@@ -56,7 +72,6 @@ class MainActivity : AppCompatActivity() {
 
         val prefs = getSharedPreferences("regl_prefs", MODE_PRIVATE)
         val currentUid = prefs.getInt("user_id", -1)
-
         db = AppDatabase.getDatabase(this)
 
         // --- VIEW TANIMLAMALARI ---
@@ -75,14 +90,16 @@ class MainActivity : AppCompatActivity() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         val btnSettings = findViewById<TextView>(R.id.btnSettings)
 
-        // Retrofit Başlatma
+        // --- TAKVİM YERELLEŞTİRME ---
+        setupCalendarLocalization()
+
+        // Retrofit Setup
         val retrofit = Retrofit.Builder()
             .baseUrl("https://yakuphanuslu.com/regl_api/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         api = retrofit.create(ApiService::class.java)
 
-        // Uygulama açıldığında sunucudaki verileri çekip tablete yükle
         fetchDataFromServer(currentUid)
 
         btnSettings.setOnClickListener {
@@ -94,10 +111,11 @@ class MainActivity : AppCompatActivity() {
         calendarView.setCurrentDate(today)
 
         calendarView.setOnDateChangedListener { _, date, _ ->
-            selectedDate = String.format("%02d/%02d/%d", date.day, date.month, date.year)
+            selectedDate = String.format(Locale.US, "%02d/%02d/%d", date.day, date.month, date.year)
             updateUI()
         }
 
+        // --- DÖNGÜ BİTİRME BUTONU ---
         btnEndPeriod.setOnClickListener {
             lifecycleScope.launch {
                 val all = db.dayDao().getAllEntries(currentUid)
@@ -116,8 +134,8 @@ class MainActivity : AppCompatActivity() {
                             d != null && !d.before(startDT) && !d.after(endDT)
                         }
 
-                        val commonPain = cycleDays.groupBy { it.painLevel }.maxByOrNull { it.value.size }?.key ?: "Yok"
-                        val commonEnergy = cycleDays.groupBy { it.energyLevel }.maxByOrNull { it.value.size }?.key ?: "Normal"
+                        val commonPain = cycleDays.groupBy { it.painLevel }.maxByOrNull { it.value.size }?.key ?: getString(R.string.none)
+                        val commonEnergy = cycleDays.groupBy { it.energyLevel }.maxByOrNull { it.value.size }?.key ?: getString(R.string.normal)
 
                         val summary = CycleSummary(
                             userId = currentUid,
@@ -131,17 +149,23 @@ class MainActivity : AppCompatActivity() {
                         db.summaryDao().insertSummary(summary)
                         syncSummaryWithCloud(summary)
 
-                        Toast.makeText(this@MainActivity, "Döngü Özeti Çıkarıldı ✨", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, getString(R.string.summary_created), Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this@MainActivity, SummaryActivity::class.java))
                     }
                 }
             }
         }
 
+        // --- KAYDET BUTONU ---
         btnSaveAll.setOnClickListener {
-            val emotions = (0 until chipGroup.childCount).map { chipGroup.getChildAt(it) as Chip }.filter { it.isChecked }.joinToString(", ") { it.text }
-            val painValue = findViewById<RadioButton>(rgPain.checkedRadioButtonId)?.text?.toString() ?: "Yok"
-            val energyValue = findViewById<RadioButton>(rgEnergy.checkedRadioButtonId)?.text?.toString() ?: "Normal"
+            val emotions = (0 until chipGroup.childCount)
+                .map { chipGroup.getChildAt(it) }
+                .filterIsInstance<Chip>()
+                .filter { it.isChecked }
+                .joinToString(", ") { it.text }
+
+            val painValue = findViewById<RadioButton>(rgPain.checkedRadioButtonId)?.text?.toString() ?: getString(R.string.none)
+            val energyValue = findViewById<RadioButton>(rgEnergy.checkedRadioButtonId)?.text?.toString() ?: getString(R.string.normal)
 
             val entry = DayEntry(
                 userId = currentUid,
@@ -155,7 +179,7 @@ class MainActivity : AppCompatActivity() {
 
             lifecycleScope.launch {
                 db.dayDao().insert(entry)
-                Toast.makeText(this@MainActivity, "Gün Kaydedildi! 🩸", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, getString(R.string.day_saved), Toast.LENGTH_SHORT).show()
                 syncWithCloud(entry)
 
                 cbPeriodStart.isChecked = false
@@ -181,27 +205,44 @@ class MainActivity : AppCompatActivity() {
         setupDailyReminder()
     }
 
-    // --- SENKRONİZASYON: SUNUCUDAN VERİLERİ ÇEK ---
+    // --- GÜNCEL: Takvim yerelleştirmesini yapan fonksiyon ---
+    private fun setupCalendarLocalization() {
+        val locale = getAppLocale()
+
+        // 1. Üst Başlık (Nisan 2026 / April 2026)
+        calendarView.setTitleFormatter { day ->
+            val calendar = Calendar.getInstance()
+            calendar.set(day.year, day.month - 1, 1)
+            val monthYearFormat = SimpleDateFormat("MMMM yyyy", locale)
+            monthYearFormat.format(calendar.time).replaceFirstChar { it.uppercase() }
+        }
+
+        // 2. Gün İsimleri (Pzt, Sal / Mon, Tue)
+        // TYPE MISMATCH ÇÖZÜMÜ: .value kullanımı
+        calendarView.setWeekDayFormatter { dayOfWeek ->
+            val calendar = Calendar.getInstance()
+            val dayInt = (dayOfWeek.value % 7) + 1
+            calendar.set(Calendar.DAY_OF_WEEK, dayInt)
+            val weekDayFormat = SimpleDateFormat("EEE", locale)
+            weekDayFormat.format(calendar.time).replaceFirstChar { it.uppercase() }
+        }
+    }
+
     private fun fetchDataFromServer(uid: Int) {
         if (uid == -1) return
-
-        // 1. Günleri Çek
         api.getDays(uid = uid).enqueue(object : Callback<ApiResponse> {
             override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
                 val body = response.body()
                 if (body?.status == "success" && body.data != null) {
                     lifecycleScope.launch(Dispatchers.IO) {
-
-                        // KRİTİK: Tabletteki eski/yanlış verileri temizle
                         db.dayDao().deleteByUserId(uid)
-
                         body.data.forEach { map ->
                             val entry = DayEntry(
                                 userId = (map["user_id"] as? Double)?.toInt() ?: uid,
                                 date = map["date"] as String,
                                 emotions = map["emotions"] as? String ?: "",
-                                painLevel = map["painLevel"] as? String ?: "Yok",
-                                energyLevel = map["energyLevel"] as? String ?: "Normal",
+                                painLevel = map["painLevel"] as? String ?: getString(R.string.none),
+                                energyLevel = map["energyLevel"] as? String ?: getString(R.string.normal),
                                 notes = map["notes"] as? String ?: "",
                                 isPeriodStart = (map["isPeriodStart"] as? Double)?.toInt() == 1
                             )
@@ -214,24 +255,20 @@ class MainActivity : AppCompatActivity() {
             override fun onFailure(call: Call<ApiResponse>, t: Throwable) {}
         })
 
-        // 2. Özetleri Çek
         api.getSummaries(uid = uid).enqueue(object : Callback<ApiResponse> {
             override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
                 val body = response.body()
                 if (body?.status == "success" && body.data != null) {
                     lifecycleScope.launch(Dispatchers.IO) {
-
-                        // KRİTİK: Tabletteki eski özetleri temizle
                         db.summaryDao().deleteSummariesByUserId(uid)
-
                         body.data.forEach { map ->
                             val summary = CycleSummary(
                                 userId = (map["user_id"] as? Double)?.toInt() ?: uid,
                                 startDate = map["startDate"] as String,
                                 endDate = map["endDate"] as String,
                                 duration = (map["duration"] as? Double)?.toInt() ?: 0,
-                                avgPain = map["avgPain"] as? String ?: "Yok",
-                                avgEnergy = map["avgEnergy"] as? String ?: "Normal"
+                                avgPain = map["avgPain"] as? String ?: getString(R.string.none),
+                                avgEnergy = map["avgEnergy"] as? String ?: getString(R.string.normal)
                             )
                             db.summaryDao().insertSummary(summary)
                         }
@@ -241,6 +278,96 @@ class MainActivity : AppCompatActivity() {
             override fun onFailure(call: Call<ApiResponse>, t: Throwable) {}
         })
     }
+
+    private fun updateUI() {
+        lifecycleScope.launch {
+            try {
+                val prefs = getSharedPreferences("regl_prefs", MODE_PRIVATE)
+                val uid = prefs.getInt("user_id", -1)
+
+                val all = db.dayDao().getAllEntries(uid)
+                val phase = CycleManager.getPhaseForDate(selectedDate, all)
+                val phaseName = phase.name ?: ""
+
+                // Faz İsimleri Çevirisi
+                when {
+                    phaseName.contains("Regl", ignoreCase = true) -> {
+                        tvPhaseTitle.text = getString(R.string.period_phase)
+                        tvPhaseDesc.text = getString(R.string.phase_desc)
+                    }
+                    phaseName.contains("Folik", ignoreCase = true) -> {
+                        tvPhaseTitle.text = getString(R.string.follicular_phase)
+                        tvPhaseDesc.text = getString(R.string.phase_desc)
+                    }
+                    phaseName.contains("Yumurt", ignoreCase = true) -> {
+                        tvPhaseTitle.text = getString(R.string.ovulation_phase)
+                        tvPhaseDesc.text = getString(R.string.ovulation_desc)
+                    }
+                    phaseName.contains("Luteal", ignoreCase = true) -> {
+                        tvPhaseTitle.text = getString(R.string.luteal_phase)
+                        tvPhaseDesc.text = getString(R.string.luteal_desc)
+                    }
+                    else -> {
+                        tvPhaseTitle.text = phaseName
+                        tvPhaseDesc.text = phase.description ?: ""
+                    }
+                }
+
+                try {
+                    llPhaseBg.setBackgroundColor(Color.parseColor(if(phase.color.isNullOrEmpty() || phase.color == "NONE") "#9E9E9E" else phase.color))
+                } catch (e: Exception) {
+                    llPhaseBg.setBackgroundColor(Color.GRAY)
+                }
+
+                // Tahmin Tarihi Yerelleştirme
+                val rawPrediction = CycleManager.calculateNextPeriod(all)
+                val dateRegex = """(\d{2}/\d{2}/\d{4})""".toRegex()
+                val match = dateRegex.find(rawPrediction)
+
+                val localizedDate = if (match != null) {
+                    try {
+                        val dateObj = sdf.parse(match.value)
+                        val displayFormat = SimpleDateFormat("dd MMMM yyyy", getAppLocale())
+                        displayFormat.format(dateObj!!)
+                    } catch (e: Exception) { match.value }
+                } else {
+                    rawPrediction.replace("Tahmini Gelecek Regl: ", "").replace("🌸", "").trim()
+                }
+
+                tvPrediction.text = getString(R.string.prediction_text, localizedDate)
+
+                // Takvim Dekorasyonu
+                calendarView.removeDecorators()
+                val lastStart = all.filter { it.isPeriodStart }.maxByOrNull { sdf.parse(it.date)?.time ?: 0L }
+                if (lastStart != null) {
+                    val startCal = Calendar.getInstance().apply { time = sdf.parse(lastStart.date)!! }
+                    for (i in 0..27) {
+                        val tempCal = startCal.clone() as Calendar
+                        tempCal.add(Calendar.DAY_OF_YEAR, i)
+                        val dateStr = sdf.format(tempCal.time)
+                        val dayPhase = CycleManager.getPhaseForDate(dateStr, all)
+                        if (dayPhase.color != "NONE") {
+                            val day = CalendarDay.from(tempCal.get(Calendar.YEAR), tempCal.get(Calendar.MONTH) + 1, tempCal.get(Calendar.DAY_OF_MONTH))
+                            calendarView.addDecorator(object : DayViewDecorator {
+                                override fun shouldDecorate(d: CalendarDay?) = d == day
+                                override fun decorate(v: DayViewFacade?) {
+                                    v?.addSpan(DotSpan(10f, Color.parseColor(dayPhase.color)))
+                                }
+                            })
+                        }
+                    }
+                }
+            } catch (e: Exception) { e.printStackTrace() }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupCalendarLocalization()
+        updateUI()
+    }
+
+    // --- YARDIMCI FONKSİYONLAR ---
 
     private fun checkNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -256,12 +383,7 @@ class MainActivity : AppCompatActivity() {
         ).setInitialDelay(calculateInitialDelay(), TimeUnit.MILLISECONDS)
             .addTag("ReglReminderWork")
             .build()
-
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "ReglReminderWork",
-            ExistingPeriodicWorkPolicy.KEEP,
-            workRequest
-        )
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork("ReglReminderWork", ExistingPeriodicWorkPolicy.KEEP, workRequest)
     }
 
     private fun calculateInitialDelay(): Long {
@@ -278,16 +400,7 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("regl_prefs", MODE_PRIVATE)
         val uid = prefs.getInt("user_id", -1)
         if (uid == -1) return
-
-        api.syncDay(
-            uid = uid,
-            date = entry.date,
-            emotions = entry.emotions,
-            pain = entry.painLevel,
-            energy = entry.energyLevel,
-            notes = entry.notes,
-            isStart = if(entry.isPeriodStart) 1 else 0
-        ).enqueue(object : Callback<ApiResponse> {
+        api.syncDay(uid = uid, date = entry.date, emotions = entry.emotions, pain = entry.painLevel, energy = entry.energyLevel, notes = entry.notes, isStart = if(entry.isPeriodStart) 1 else 0).enqueue(object : Callback<ApiResponse> {
             override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {}
             override fun onFailure(call: Call<ApiResponse>, t: Throwable) {}
         })
@@ -300,46 +413,5 @@ class MainActivity : AppCompatActivity() {
             override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {}
             override fun onFailure(call: Call<ApiResponse>, t: Throwable) {}
         })
-    }
-
-    private fun updateUI() {
-        lifecycleScope.launch {
-            val prefs = getSharedPreferences("regl_prefs", MODE_PRIVATE)
-            val uid = prefs.getInt("user_id", -1)
-
-            val all = db.dayDao().getAllEntries(uid)
-            val phase = CycleManager.getPhaseForDate(selectedDate, all)
-
-            tvPhaseTitle.text = phase.name
-            tvPhaseDesc.text = phase.description
-            llPhaseBg.setBackgroundColor(Color.parseColor(if(phase.color=="NONE") "#9E9E9E" else phase.color))
-            tvPrediction.text = CycleManager.calculateNextPeriod(all)
-
-            calendarView.removeDecorators()
-            val lastStart = all.filter { it.isPeriodStart }.maxByOrNull { sdf.parse(it.date)?.time ?: 0L }
-            if (lastStart != null) {
-                val startCal = Calendar.getInstance().apply { time = sdf.parse(lastStart.date)!! }
-                for (i in 0..27) {
-                    val tempCal = startCal.clone() as Calendar
-                    tempCal.add(Calendar.DAY_OF_YEAR, i)
-                    val dateStr = sdf.format(tempCal.time)
-                    val dayPhase = CycleManager.getPhaseForDate(dateStr, all)
-                    if (dayPhase.color != "NONE") {
-                        val day = CalendarDay.from(tempCal.get(Calendar.YEAR), tempCal.get(Calendar.MONTH) + 1, tempCal.get(Calendar.DAY_OF_MONTH))
-                        calendarView.addDecorator(object : DayViewDecorator {
-                            override fun shouldDecorate(d: CalendarDay?) = d == day
-                            override fun decorate(v: DayViewFacade?) {
-                                v?.addSpan(DotSpan(10f, Color.parseColor(dayPhase.color)))
-                            }
-                        })
-                    }
-                }
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        updateUI()
     }
 }

@@ -35,7 +35,7 @@
                     android:id="@+id/tvPeriodStartBadge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Regl Başlangıcı 🩸"
+                    android:text="@string/period_start_badge"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     android:textColor="#FFFFFF"
@@ -45,12 +45,13 @@
                     android:paddingVertical="5dp"
                     android:visibility="gone"/>
             </LinearLayout>
+
             <TextView
                 android:id="@+id/btnDeleteEntry"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:text="SİL 🗑️"
+                android:text="@string/delete"
                 android:textStyle="bold"
                 android:textColor="#BDBDBD" />
         </RelativeLayout>

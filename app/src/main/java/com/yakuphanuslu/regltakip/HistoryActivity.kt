@@ -4,17 +4,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.text.SimpleDateFormat
+import java.util.*
 
 class HistoryActivity : AppCompatActivity() {
     private lateinit var rvHistory: RecyclerView
@@ -30,44 +28,49 @@ class HistoryActivity : AppCompatActivity() {
         findViewById<BottomNavigationView>(R.id.bottomNavigationHistory).apply {
             selectedItemId = R.id.nav_history
             setOnItemSelectedListener {
-                if(it.itemId == R.id.nav_home) startActivity(Intent(this@HistoryActivity, MainActivity::class.java))
-                if(it.itemId == R.id.nav_summary) startActivity(Intent(this@HistoryActivity, SummaryActivity::class.java))
-                false
+                when(it.itemId) {
+                    R.id.nav_home -> { startActivity(Intent(this@HistoryActivity, MainActivity::class.java)); false }
+                    R.id.nav_summary -> { startActivity(Intent(this@HistoryActivity, SummaryActivity::class.java)); false }
+                    else -> true
+                }
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-
         val prefs = getSharedPreferences("regl_prefs", MODE_PRIVATE)
         val uid = prefs.getInt("user_id", -1)
 
         lifecycleScope.launch {
-            val list = db.dayDao().getAllEntries(uid)
+            val allEntries = db.dayDao().getAllEntries(uid)
 
-            rvHistory.adapter = HistoryAdapter(list) { entry ->
+            // --- YENİ: Tarihe göre en yeniden en eskiye sıralama mantığı ---
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.US)
+            val sortedList = allEntries.sortedByDescending { entry ->
+                try {
+                    sdf.parse(entry.date)?.time ?: 0L
+                } catch (e: Exception) {
+                    0L
+                }
+            }
+
+            // Sıralanmış listeyi (sortedList) adaptöre veriyoruz
+            rvHistory.adapter = HistoryAdapter(sortedList) { entry ->
                 lifecycleScope.launch {
-                    // 1. Yerel Veritabanından (Room) Sil
                     db.dayDao().delete(entry)
 
-                    // 2. Bulut Veritabanından (MySQL) Sil 🚀
                     val retrofit = Retrofit.Builder()
                         .baseUrl("https://yakuphanuslu.com/regl_api/")
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                     val api = retrofit.create(ApiService::class.java)
 
-                    api.deleteDay(uid = uid, date = entry.date).enqueue(object : Callback<ApiResponse> {
-                        override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
-                            // Buluttan başarıyla silindiğinde bir şey yapmaya gerek yok, yerel zaten silindi
-                        }
-                        override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
-                            // İnternet hatası olsa bile yerel silindiği için kullanıcıyı etkilemez
-                        }
+                    api.deleteDay(uid = uid, date = entry.date).enqueue(object : retrofit2.Callback<ApiResponse> {
+                        override fun onResponse(call: retrofit2.Call<ApiResponse>, response: retrofit2.Response<ApiResponse>) {}
+                        override fun onFailure(call: retrofit2.Call<ApiResponse>, t: Throwable) {}
                     })
-
-                    onResume() // Listeyi yenilemek için
+                    onResume() // Sildikten sonra listeyi yenile
                 }
             }
         }
@@ -89,12 +92,42 @@ class HistoryAdapter(private val list: List<DayEntry>, private val onDelete: (Da
 
     override fun onBindViewHolder(h: VH, p: Int) {
         val item = list[p]
+        val context = h.itemView.context
+
         h.date.text = item.date
         h.badge.visibility = if (item.isPeriodStart) View.VISIBLE else View.GONE
-        h.emotions.text = if(item.emotions.isNotEmpty()) item.emotions else "Belirtilmedi"
-        h.pain.text = item.painLevel
-        h.energy.text = item.energyLevel
-        h.notes.text = if(item.notes.isNotEmpty()) item.notes else "Not eklenmemiş"
+
+        // --- 1. DUYGULARI ÇEVİR (contains ile yakalama) ---
+        val rawEmotions = item.emotions
+        val translatedEmotions = rawEmotions
+            .replace("Mutlu 🥰", context.getString(R.string.happy))
+            .replace("Hassas \uD83E\uDD7A", context.getString(R.string.sensitive))
+            .replace("Sinirli \uD83D\uDE20", context.getString(R.string.angry))
+
+        h.emotions.text = translatedEmotions.ifEmpty { context.getString(R.string.not_specified) }
+
+        // --- 2. AĞRI SEVİYESİNİ ÇEVİR ---
+        val rawPain = item.painLevel
+        h.pain.text = when {
+            rawPain.contains("Şiddetli", true) -> context.getString(R.string.severe)
+            rawPain.contains("Hafif", true) -> context.getString(R.string.light_pain)
+            rawPain.contains("Yok", true) -> context.getString(R.string.none)
+            else -> rawPain
+        }
+
+        // --- 3. ENERJİ SEVİYESİNİ ÇEVİR ---
+        val rawEnergy = item.energyLevel
+        h.energy.text = when {
+            rawEnergy.contains("Bitkin", true) -> context.getString(R.string.exhausted)
+            rawEnergy.contains("Enerjik", true) -> context.getString(R.string.energetic)
+            rawEnergy.contains("Normal", true) -> context.getString(R.string.normal)
+            else -> rawEnergy
+        }
+
+        // --- 4. NOTLARI VE SİL BUTONUNU ÇEVİR ---
+        h.notes.text = item.notes.ifEmpty { context.getString(R.string.no_notes) }
+        h.btnDelete.text = context.getString(R.string.delete)
+
         h.btnDelete.setOnClickListener { onDelete(item) }
     }
 

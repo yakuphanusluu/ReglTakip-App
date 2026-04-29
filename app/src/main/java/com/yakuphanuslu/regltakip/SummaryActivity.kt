@@ -9,6 +9,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class SummaryActivity : AppCompatActivity() {
     private lateinit var rv: RecyclerView
@@ -33,10 +38,40 @@ class SummaryActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        val prefs = getSharedPreferences("regl_prefs", MODE_PRIVATE)
+        val uid = prefs.getInt("user_id", -1)
+
         lifecycleScope.launch {
-            val list = db.summaryDao().getAllSummaries()
+            val list = db.summaryDao().getAllSummaries(uid)
+
             rv.adapter = SummaryAdapter(list) { summary ->
-                lifecycleScope.launch { db.summaryDao().deleteSummary(summary); onResume() }
+                lifecycleScope.launch {
+                    // 1. Yerel Veritabanından (Room) Sil
+                    db.summaryDao().deleteSummary(summary)
+
+                    // 2. Bulut Veritabanından (MySQL) Sil 🚀
+                    val retrofit = Retrofit.Builder()
+                        .baseUrl("https://yakuphanuslu.com/regl_api/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                    val api = retrofit.create(ApiService::class.java)
+
+                    api.deleteSummary(
+                        uid = uid,
+                        sDate = summary.startDate,
+                        eDate = summary.endDate
+                    ).enqueue(object : Callback<ApiResponse> {
+                        override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
+                            // Başarıyla silindi
+                        }
+                        override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
+                            // Hata durumunda yerel zaten silindiği için sorun yok
+                        }
+                    })
+
+                    onResume() // Listeyi yenile
+                }
             }
         }
     }
@@ -49,10 +84,12 @@ class SummaryAdapter(private val list: List<CycleSummary>, private val onDelete:
         val title: TextView = v.findViewById(R.id.cgHistoryEmotions)
         val pain: TextView = v.findViewById(R.id.tvHistoryPain)
         val energy: TextView = v.findViewById(R.id.tvHistoryEnergy)
-        val notes: TextView = v.findViewById(R.id.tvHistoryNotes) // Not alanı
+        val notes: TextView = v.findViewById(R.id.tvHistoryNotes)
         val btnDelete: TextView = v.findViewById(R.id.btnDeleteEntry)
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(LayoutInflater.from(parent.context).inflate(R.layout.item_history, parent, false))
+
     override fun onBindViewHolder(h: VH, p: Int) {
         val item = list[p]
         h.dates.text = "${item.startDate} - ${item.endDate}"
@@ -60,8 +97,9 @@ class SummaryAdapter(private val list: List<CycleSummary>, private val onDelete:
         h.title.text = "Tamamlanan Döngü Özeti"
         h.pain.text = "Genel Ağrı: ${item.avgPain}"
         h.energy.text = "Genel Enerji: ${item.avgEnergy}"
-        h.notes.visibility = View.GONE // NOT KISMINI KALDIRDIK
+        h.notes.visibility = View.GONE
         h.btnDelete.setOnClickListener { onDelete(item) }
     }
+
     override fun getItemCount() = list.size
 }

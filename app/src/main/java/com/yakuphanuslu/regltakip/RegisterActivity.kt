@@ -1,44 +1,62 @@
 package com.yakuphanuslu.regltakip
 
-import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.auth.FirebaseAuth
+import retrofit2.*
+import retrofit2.converter.gson.GsonConverterFactory
 
 class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        val auth = FirebaseAuth.getInstance()
-        val etEmail = findViewById<TextInputEditText>(R.id.etRegisterEmail)
-        val etPassword = findViewById<TextInputEditText>(R.id.etRegisterPassword)
-        val btnRegister = findViewById<MaterialButton>(R.id.btnRegisterSubmit)
-        val tvBackToLogin = findViewById<TextView>(R.id.tvBackToLogin)
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://yakuphanuslu.com/regl_api/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        val api = retrofit.create(ApiService::class.java)
 
-        btnRegister.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
+        findViewById<Button>(R.id.btnRegSubmit).setOnClickListener {
+            // Değişken ismini 'email' yaptık
+            val email = findViewById<EditText>(R.id.etRegUsername).text.toString().trim()
+            val p = findViewById<EditText>(R.id.etRegPassword).text.toString().trim()
 
-            if (email.isNotEmpty() && password.length >= 6) {
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnSuccessListener {
-                        Toast.makeText(this, "Hoş geldin Yakup! Hesap açıldı. ✨", Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this, MainActivity::class.java))
-                        finish()
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(this, "Hata: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-                    }
-            } else {
-                Toast.makeText(this, "Lütfen geçerli bilgiler gir kanka!", Toast.LENGTH_SHORT).show()
+            // Basit e-posta ve şifre kontrolü
+            if (!email.contains("@") || email.length < 5) {
+                Toast.makeText(this, "Geçerli bir e-posta adresi gir kanka! 📧", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            if (p.length < 4) {
+                Toast.makeText(this, "Şifre en az 4 karakter olmalı! 🔑", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // ApiService içindeki yeni 'email' parametresini kullanıyoruz
+            api.register(email = email, p = p).enqueue(object : Callback<ApiResponse> {
+                override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
+                    val body = response.body()
+                    if (body?.status == "success") {
+
+                        // YENİ EKLENEN KISIM: Onay bekleyen e-postayı hafızaya al (Giriş ekranında uyarı göstermek için)
+                        val prefs = getSharedPreferences("regl_prefs", MODE_PRIVATE)
+                        prefs.edit().putString("pending_verification", email).apply()
+
+                        Toast.makeText(this@RegisterActivity, "Kayıt Başarılı! E-postanı kontrol et. ✨", Toast.LENGTH_LONG).show()
+                        finish() // Giriş ekranına geri döner
+                    } else {
+                        // PHP tarafındaki hata mesajını göster (örn: "Bu e-posta zaten kayıtlı")
+                        val errorMsg = body?.message ?: "Bu e-posta zaten alınmış veya bir hata oluştu!"
+                        Toast.makeText(this@RegisterActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
+                    Toast.makeText(this@RegisterActivity, "Bağlantı hatası: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
         }
 
-        tvBackToLogin.setOnClickListener { finish() }
+        findViewById<TextView>(R.id.btnBackToLogin).setOnClickListener { finish() }
     }
 }

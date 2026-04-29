@@ -10,6 +10,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class HistoryActivity : AppCompatActivity() {
     private lateinit var rvHistory: RecyclerView
@@ -34,10 +39,36 @@ class HistoryActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        val prefs = getSharedPreferences("regl_prefs", MODE_PRIVATE)
+        val uid = prefs.getInt("user_id", -1)
+
         lifecycleScope.launch {
-            val list = db.dayDao().getAllEntries()
+            val list = db.dayDao().getAllEntries(uid)
+
             rvHistory.adapter = HistoryAdapter(list) { entry ->
-                lifecycleScope.launch { db.dayDao().delete(entry); onResume() }
+                lifecycleScope.launch {
+                    // 1. Yerel Veritabanından (Room) Sil
+                    db.dayDao().delete(entry)
+
+                    // 2. Bulut Veritabanından (MySQL) Sil 🚀
+                    val retrofit = Retrofit.Builder()
+                        .baseUrl("https://yakuphanuslu.com/regl_api/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                    val api = retrofit.create(ApiService::class.java)
+
+                    api.deleteDay(uid = uid, date = entry.date).enqueue(object : Callback<ApiResponse> {
+                        override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
+                            // Buluttan başarıyla silindiğinde bir şey yapmaya gerek yok, yerel zaten silindi
+                        }
+                        override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
+                            // İnternet hatası olsa bile yerel silindiği için kullanıcıyı etkilemez
+                        }
+                    })
+
+                    onResume() // Listeyi yenilemek için
+                }
             }
         }
     }
@@ -50,10 +81,12 @@ class HistoryAdapter(private val list: List<DayEntry>, private val onDelete: (Da
         val emotions: TextView = v.findViewById(R.id.cgHistoryEmotions)
         val pain: TextView = v.findViewById(R.id.tvHistoryPain)
         val energy: TextView = v.findViewById(R.id.tvHistoryEnergy)
-        val notes: TextView = v.findViewById(R.id.tvHistoryNotes) // BU SATIR EKLENDİ
+        val notes: TextView = v.findViewById(R.id.tvHistoryNotes)
         val btnDelete: TextView = v.findViewById(R.id.btnDeleteEntry)
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(LayoutInflater.from(parent.context).inflate(R.layout.item_history, parent, false))
+
     override fun onBindViewHolder(h: VH, p: Int) {
         val item = list[p]
         h.date.text = item.date
@@ -61,8 +94,9 @@ class HistoryAdapter(private val list: List<DayEntry>, private val onDelete: (Da
         h.emotions.text = if(item.emotions.isNotEmpty()) item.emotions else "Belirtilmedi"
         h.pain.text = item.painLevel
         h.energy.text = item.energyLevel
-        h.notes.text = if(item.notes.isNotEmpty()) item.notes else "Not eklenmemiş" // NOT BURADA BASILIYOR
+        h.notes.text = if(item.notes.isNotEmpty()) item.notes else "Not eklenmemiş"
         h.btnDelete.setOnClickListener { onDelete(item) }
     }
+
     override fun getItemCount() = list.size
 }

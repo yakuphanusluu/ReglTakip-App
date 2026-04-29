@@ -1,57 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
+    android:background="#FFF5F8"
     android:gravity="center"
-    android:background="#FFF5F7"> <TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Yeni Hesap Oluştur 🌸"
-    android:textSize="24sp"
-    android:textStyle="bold"
-    android:textColor="#D81B60"
-    android:layout_marginBottom="32dp"/>
+    android:orientation="vertical"
+    android:padding="32dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Yeni Hesap Oluştur ✨"
+        android:textColor="#D81B60"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="E-posta Adresi"
+        app:boxStrokeColor="#D81B60"
         android:layout_marginBottom="16dp">
+
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etRegisterEmail"
+            android:id="@+id/etRegUsername"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="E-posta Adresi"
-            android:inputType="textEmailAddress"/>
+            android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="Şifre Belirle"
+        app:boxStrokeColor="#D81B60"
+        app:passwordToggleEnabled="true"
         android:layout_marginBottom="24dp">
+
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etRegisterPassword"
+            android:id="@+id/etRegPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Şifre (En az 6 karakter)"
-            android:inputType="textPassword"/>
+            android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnRegisterSubmit"
+        android:id="@+id/btnRegSubmit"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:text="Kayıt Ol ve Giriş Yap"
-        android:backgroundTint="#D81B60"/>
+        android:layout_height="56dp"
+        android:text="KAYIT OL VE BAŞLA"
+        app:cornerRadius="12dp"
+        android:backgroundTint="#D81B60"
+        android:layout_marginBottom="12dp"/>
 
     <TextView
-        android:id="@+id/tvBackToLogin"
+        android:id="@+id/btnBackToLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Zaten hesabın var mı? Giriş yap"
-        android:textColor="#D81B60"
-        android:layout_marginTop="16dp"
+        android:text="Zaten hesabım var, Giriş Yap"
+        android:textColor="#9E9E9E"
         android:padding="8dp"/>
-
 </LinearLayout>

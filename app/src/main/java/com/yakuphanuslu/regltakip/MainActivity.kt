@@ -1,21 +1,35 @@
 package com.yakuphanuslu.regltakip
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate // EKLENDİ
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.work.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.prolificinteractive.materialcalendarview.*
 import com.prolificinteractive.materialcalendarview.spans.DotSpan
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     private lateinit var db: AppDatabase
@@ -33,15 +47,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rgEnergy: RadioGroup
     private lateinit var cbPeriodStart: CheckBox
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        // 🔥 İŞTE O SATIR: Karanlık modu devre dışı bırakır, tasarımın bozulmasını önler
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+    private lateinit var api: ApiService
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // View Bağlantıları
+        val prefs = getSharedPreferences("regl_prefs", MODE_PRIVATE)
+        val currentUid = prefs.getInt("user_id", -1)
+
         db = AppDatabase.getDatabase(this)
+
+        // --- VIEW TANIMLAMALARI ---
         calendarView = findViewById(R.id.calendarView)
         tvPrediction = findViewById(R.id.tvPrediction)
         tvPhaseTitle = findViewById(R.id.tvPhaseTitle)
@@ -55,8 +73,22 @@ class MainActivity : AppCompatActivity() {
         val btnSaveAll = findViewById<MaterialButton>(R.id.btnSaveAll)
         val btnEndPeriod = findViewById<MaterialButton>(R.id.btnEndPeriod)
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
+        val btnSettings = findViewById<TextView>(R.id.btnSettings)
 
-        // BUGÜNÜ OTOMATİK SEÇ
+        // Retrofit Başlatma
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://yakuphanuslu.com/regl_api/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        api = retrofit.create(ApiService::class.java)
+
+        // Uygulama açıldığında sunucudaki verileri çekip tablete yükle
+        fetchDataFromServer(currentUid)
+
+        btnSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
         val today = CalendarDay.today()
         calendarView.setSelectedDate(today)
         calendarView.setCurrentDate(today)
@@ -66,10 +98,9 @@ class MainActivity : AppCompatActivity() {
             updateUI()
         }
 
-        // --- REGL BİTTİ (ÖZET ÇIKARMA) MANTIĞI ---
         btnEndPeriod.setOnClickListener {
             lifecycleScope.launch {
-                val all = db.dayDao().getAllEntries()
+                val all = db.dayDao().getAllEntries(currentUid)
                 val lastStart = all.filter { it.isPeriodStart }.maxByOrNull {
                     sdf.parse(it.date)?.time ?: 0L
                 }
@@ -88,43 +119,45 @@ class MainActivity : AppCompatActivity() {
                         val commonPain = cycleDays.groupBy { it.painLevel }.maxByOrNull { it.value.size }?.key ?: "Yok"
                         val commonEnergy = cycleDays.groupBy { it.energyLevel }.maxByOrNull { it.value.size }?.key ?: "Normal"
 
-                        db.summaryDao().insertSummary(CycleSummary(
+                        val summary = CycleSummary(
+                            userId = currentUid,
                             startDate = lastStart.date,
                             endDate = selectedDate,
                             duration = diff.toInt(),
                             avgPain = commonPain,
                             avgEnergy = commonEnergy
-                        ))
+                        )
 
-                        Toast.makeText(this@MainActivity, "Döngü Tamamlandı: $diff Gün ✨", Toast.LENGTH_SHORT).show()
+                        db.summaryDao().insertSummary(summary)
+                        syncSummaryWithCloud(summary)
+
+                        Toast.makeText(this@MainActivity, "Döngü Özeti Çıkarıldı ✨", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this@MainActivity, SummaryActivity::class.java))
-                    } else {
-                        Toast.makeText(this@MainActivity, "Bitiş tarihi başlangıçtan önce olamaz!", Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    Toast.makeText(this@MainActivity, "Önce başlangıç seçmelisin!", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
-        // --- GÜNÜ KAYDET VE EKRANI SIFIRLA MANTIĞI ---
         btnSaveAll.setOnClickListener {
             val emotions = (0 until chipGroup.childCount).map { chipGroup.getChildAt(it) as Chip }.filter { it.isChecked }.joinToString(", ") { it.text }
-            val pain = findViewById<RadioButton>(rgPain.checkedRadioButtonId)?.text?.toString() ?: "Yok"
-            val energy = findViewById<RadioButton>(rgEnergy.checkedRadioButtonId)?.text?.toString() ?: "Normal"
+            val painValue = findViewById<RadioButton>(rgPain.checkedRadioButtonId)?.text?.toString() ?: "Yok"
+            val energyValue = findViewById<RadioButton>(rgEnergy.checkedRadioButtonId)?.text?.toString() ?: "Normal"
+
+            val entry = DayEntry(
+                userId = currentUid,
+                date = selectedDate,
+                emotions = emotions,
+                painLevel = painValue,
+                energyLevel = energyValue,
+                notes = etNotes.text.toString(),
+                isPeriodStart = cbPeriodStart.isChecked
+            )
 
             lifecycleScope.launch {
-                db.dayDao().insert(DayEntry(
-                    date = selectedDate,
-                    emotions = emotions,
-                    painLevel = pain,
-                    energyLevel = energy,
-                    notes = etNotes.text.toString(),
-                    isPeriodStart = cbPeriodStart.isChecked
-                ))
+                db.dayDao().insert(entry)
                 Toast.makeText(this@MainActivity, "Gün Kaydedildi! 🩸", Toast.LENGTH_SHORT).show()
+                syncWithCloud(entry)
 
-                // KAYDETTİKTEN SONRA EKRANI SIFIRLAMA
                 cbPeriodStart.isChecked = false
                 chipGroup.clearCheck()
                 rgPain.clearCheck()
@@ -135,7 +168,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // NAVİGASYON
         bottomNav.selectedItemId = R.id.nav_home
         bottomNav.setOnItemSelectedListener { item ->
             when(item.itemId) {
@@ -144,11 +176,138 @@ class MainActivity : AppCompatActivity() {
                 else -> true
             }
         }
+
+        checkNotificationPermission()
+        setupDailyReminder()
+    }
+
+    // --- SENKRONİZASYON: SUNUCUDAN VERİLERİ ÇEK ---
+    private fun fetchDataFromServer(uid: Int) {
+        if (uid == -1) return
+
+        // 1. Günleri Çek
+        api.getDays(uid = uid).enqueue(object : Callback<ApiResponse> {
+            override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
+                val body = response.body()
+                if (body?.status == "success" && body.data != null) {
+                    lifecycleScope.launch(Dispatchers.IO) {
+
+                        // KRİTİK: Tabletteki eski/yanlış verileri temizle
+                        db.dayDao().deleteByUserId(uid)
+
+                        body.data.forEach { map ->
+                            val entry = DayEntry(
+                                userId = (map["user_id"] as? Double)?.toInt() ?: uid,
+                                date = map["date"] as String,
+                                emotions = map["emotions"] as? String ?: "",
+                                painLevel = map["painLevel"] as? String ?: "Yok",
+                                energyLevel = map["energyLevel"] as? String ?: "Normal",
+                                notes = map["notes"] as? String ?: "",
+                                isPeriodStart = (map["isPeriodStart"] as? Double)?.toInt() == 1
+                            )
+                            db.dayDao().insert(entry)
+                        }
+                        withContext(Dispatchers.Main) { updateUI() }
+                    }
+                }
+            }
+            override fun onFailure(call: Call<ApiResponse>, t: Throwable) {}
+        })
+
+        // 2. Özetleri Çek
+        api.getSummaries(uid = uid).enqueue(object : Callback<ApiResponse> {
+            override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
+                val body = response.body()
+                if (body?.status == "success" && body.data != null) {
+                    lifecycleScope.launch(Dispatchers.IO) {
+
+                        // KRİTİK: Tabletteki eski özetleri temizle
+                        db.summaryDao().deleteSummariesByUserId(uid)
+
+                        body.data.forEach { map ->
+                            val summary = CycleSummary(
+                                userId = (map["user_id"] as? Double)?.toInt() ?: uid,
+                                startDate = map["startDate"] as String,
+                                endDate = map["endDate"] as String,
+                                duration = (map["duration"] as? Double)?.toInt() ?: 0,
+                                avgPain = map["avgPain"] as? String ?: "Yok",
+                                avgEnergy = map["avgEnergy"] as? String ?: "Normal"
+                            )
+                            db.summaryDao().insertSummary(summary)
+                        }
+                    }
+                }
+            }
+            override fun onFailure(call: Call<ApiResponse>, t: Throwable) {}
+        })
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 101)
+            }
+        }
+    }
+
+    private fun setupDailyReminder() {
+        val workRequest = PeriodicWorkRequestBuilder<ReminderWorker>(
+            24, TimeUnit.HOURS
+        ).setInitialDelay(calculateInitialDelay(), TimeUnit.MILLISECONDS)
+            .addTag("ReglReminderWork")
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "ReglReminderWork",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
+    }
+
+    private fun calculateInitialDelay(): Long {
+        val calendar = Calendar.getInstance()
+        val now = calendar.timeInMillis
+        calendar.set(Calendar.HOUR_OF_DAY, 21)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        if (calendar.timeInMillis <= now) calendar.add(Calendar.DAY_OF_YEAR, 1)
+        return calendar.timeInMillis - now
+    }
+
+    private fun syncWithCloud(entry: DayEntry) {
+        val prefs = getSharedPreferences("regl_prefs", MODE_PRIVATE)
+        val uid = prefs.getInt("user_id", -1)
+        if (uid == -1) return
+
+        api.syncDay(
+            uid = uid,
+            date = entry.date,
+            emotions = entry.emotions,
+            pain = entry.painLevel,
+            energy = entry.energyLevel,
+            notes = entry.notes,
+            isStart = if(entry.isPeriodStart) 1 else 0
+        ).enqueue(object : Callback<ApiResponse> {
+            override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {}
+            override fun onFailure(call: Call<ApiResponse>, t: Throwable) {}
+        })
+    }
+
+    private fun syncSummaryWithCloud(summary: CycleSummary) {
+        val uid = getSharedPreferences("regl_prefs", MODE_PRIVATE).getInt("user_id", -1)
+        if (uid == -1) return
+        api.syncSummary(uid = uid, sDate = summary.startDate, eDate = summary.endDate, dur = summary.duration, aPain = summary.avgPain, aEng = summary.avgEnergy).enqueue(object : Callback<ApiResponse> {
+            override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {}
+            override fun onFailure(call: Call<ApiResponse>, t: Throwable) {}
+        })
     }
 
     private fun updateUI() {
         lifecycleScope.launch {
-            val all = db.dayDao().getAllEntries()
+            val prefs = getSharedPreferences("regl_prefs", MODE_PRIVATE)
+            val uid = prefs.getInt("user_id", -1)
+
+            val all = db.dayDao().getAllEntries(uid)
             val phase = CycleManager.getPhaseForDate(selectedDate, all)
 
             tvPhaseTitle.text = phase.name
